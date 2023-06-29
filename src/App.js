@@ -1,25 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 
-function App() {
+import './App.css';
+import DriverTable from './components/DriverTable';
+import HomePage from './components/HomePage';
+import VehiclesPage from './components/Vehicles';
+import AboutPage from './components/About';
+
+const App = () => {
+  const [menuItems, setMenuItems] = useState([]);
+  const [driverData, setDriverData] = useState([]);
+
+  useEffect(() => {
+    fetch('/data/menu.json')
+      .then((response) => response.json())
+      .then((data) => setMenuItems(data.data))
+      .catch((error) => console.log(error));
+
+    fetch('/data/drivers.json')
+      .then((response) => response.json())
+      .then((data) => setDriverData(data.data))
+      .catch((error) => console.log(error));
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="app">
+        <div className="top-banner"></div>
+        <div className="content">
+          <div className="side-menu">
+            <ul>
+              {menuItems.map((item, index) => (
+                <li key={index}>
+                  <Link to={item.url}>{item.title}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/drivers" element={<DriverTable drivers={driverData} />} />
+            <Route path="/vehicles" element={<VehiclesPage />} />
+            <Route path="/about" element={<AboutPage />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
